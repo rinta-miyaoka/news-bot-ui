@@ -14,5 +14,6 @@ export type UserSettings = {
   language: 'ja' | 'en' | 'both'
   schedule: string
   max_articles: number
+  source_urls: string[]
   updated_at?: string
 }

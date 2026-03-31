@@ -22,6 +22,7 @@ const BLANK: UserSettings = {
   language: 'ja',
   schedule: '09:00',
   max_articles: 5,
+  source_urls: [],
 }
 
 type Props = {
@@ -33,6 +34,7 @@ type Props = {
 export default function SettingsForm({ initial, onSaved, onCancel }: Props) {
   const [form, setForm] = useState<UserSettings>(initial ?? BLANK)
   const [keywordInput, setKeywordInput] = useState('')
+  const [sourceInput, setSourceInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -46,6 +48,24 @@ export default function SettingsForm({ initial, onSaved, onCancel }: Props) {
 
   const removeKeyword = (kw: string) => {
     setForm({ ...form, keywords: form.keywords.filter(k => k !== kw) })
+  }
+
+  const addSource = () => {
+    const raw = sourceInput.trim()
+    if (!raw) return
+    try {
+      const domain = new URL(raw.startsWith('http') ? raw : `https://${raw}`).hostname
+      if (domain && !form.source_urls.includes(domain)) {
+        setForm({ ...form, source_urls: [...form.source_urls, domain] })
+      }
+    } catch {
+      // invalid URL, ignore
+    }
+    setSourceInput('')
+  }
+
+  const removeSource = (src: string) => {
+    setForm({ ...form, source_urls: form.source_urls.filter(s => s !== src) })
   }
 
   const toggleCategory = (cat: string) => {
@@ -135,6 +155,28 @@ export default function SettingsForm({ initial, onSaved, onCancel }: Props) {
             />
             {cat.label}
           </label>
+        ))}
+      </div>
+
+      {/* ニュースソース */}
+      <label style={styles.label}>ニュースソース（任意）</label>
+      <p style={styles.hint}>特定のサイトに絞りたい場合にURLを追加。例: https://prtimes.jp</p>
+      <div style={styles.row}>
+        <input
+          style={{ ...styles.input, flex: 1, marginBottom: 0 }}
+          placeholder="https://prtimes.jp"
+          value={sourceInput}
+          onChange={e => setSourceInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addSource()}
+        />
+        <button style={styles.addBtn} onClick={addSource}>追加</button>
+      </div>
+      <div style={styles.tags}>
+        {(form.source_urls ?? []).map(src => (
+          <span key={src} style={{ ...styles.tag, background: '#f0f4fa', color: '#567EB4' }}>
+            {src}
+            <button style={styles.tagRemove} onClick={() => removeSource(src)}>×</button>
+          </span>
         ))}
       </div>
 
@@ -308,5 +350,10 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#c0392b',
     fontSize: 13,
     marginTop: 12,
+  },
+  hint: {
+    fontSize: 11,
+    color: '#999',
+    margin: '2px 0 6px',
   },
 }
