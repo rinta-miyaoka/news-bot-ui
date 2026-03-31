@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,7 +9,7 @@ const supabase = createClient(
 )
 
 async function getSlackId(): Promise<string | null> {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   return (session?.user as { slack_id?: string })?.slack_id ?? null
 }
 
