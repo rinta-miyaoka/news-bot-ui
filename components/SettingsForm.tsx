@@ -12,7 +12,7 @@ const CATEGORIES = [
   { value: 'science', label: 'サイエンス' },
 ]
 
-const SCHEDULES = ['07:00', '08:00', '09:00', '10:00', '12:00', '18:00', '20:00']
+const SCHEDULES = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
 
 const BLANK: UserSettings = {
   user_name: '',
